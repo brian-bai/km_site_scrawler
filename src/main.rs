@@ -1,7 +1,10 @@
 use clap::App;
 use clap::Arg;
+use url::ParseError;
+use url::Url;
 use km_site_crawler::retrieve_urls;
-//use clap::crate_version;
+use km_site_crawler::compose_absolute_urls;
+
 #[macro_export]
 macro_rules! crate_version {
     () => {
@@ -35,12 +38,13 @@ async fn main() {
 
             if let Some(home_url) = app_m.value_of("home_url"){
                 println!("Home Url: {home_url}");
-
                 match retrieve_urls(home_url).await{
                     Err(why) => println!("Failed to retrieve urls: {why}"),
-                    Ok(urls) => {
-                            for url in &urls {
-                                println!("{url}");
+                    Ok(urls) => { 
+
+                        let new_urls = compose_absolute_urls(home_url, urls);
+                            for url in &new_urls {
+                                println!("New Url : {url}");
                             }     
                        }
                 }
