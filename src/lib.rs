@@ -2,6 +2,7 @@ use std::collections::HashSet;
 use select::document::Document;
 use select::predicate::Name;
 use url::{Url, ParseError};
+//use tempfile::Builder;
 
 use error_chain::error_chain;
 
@@ -66,4 +67,30 @@ pub fn compose_absolute_urls(home_url: &str, urls: HashSet<String>) -> HashSet<S
     }    
     set 
 }
+
+
+pub async fn download(absolute_url: &str, target_dir: &str) -> Result<()> {
+    let response = reqwest::get(absolute_url).await?;
+
+    let mut dest = {
+        let fname = response
+            .url()
+            .path_segments()
+            .and_then(|segments| segments.last())
+            .and_then(|name| if name.is_empty() { None } else { Some(name) })
+            .unwrap_or("tmp.bin");
+
+        println!("file to download: '{}'", fname);
+       
+        let path = std::path::Path::new(target_dir);
+        let fname = path.join(fname);
+        println!("will be located under: '{:?}'", fname);
+        std::fs::File::create(fname)?
+    };
+
+    let mut content =  std::io::Cursor::new(response.bytes().await?);
+    std::io::copy(&mut content, &mut dest)?;
+    Ok(())
+}
+
 
