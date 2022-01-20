@@ -56,13 +56,8 @@ async fn main() {
 
                         let new_urls = compose_absolute_urls(home_url, urls);
                             for url in &new_urls {
-                                //println!("New Url : {url}");
-                                match download(url, &target_dir).await {
-                                    Err(why) => println!("Download error: {why}"),
-                                    Ok(_) => {
-                                        //TODO: comment out after test
-                                        //break;
-                                    },
+                                if let Err(why) = download(url, target_dir).await {
+                                    println!("Download error: {why}")
                                 }
                             }     
                        }
