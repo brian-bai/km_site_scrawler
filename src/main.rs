@@ -1,5 +1,6 @@
 use clap::App;
 use clap::Arg;
+use km_site_crawler::retrieve_urls;
 //use clap::crate_version;
 #[macro_export]
 macro_rules! crate_version {
@@ -8,7 +9,8 @@ macro_rules! crate_version {
     };
 }
 
-fn main() {
+#[tokio::main(flavor = "current_thread")]
+async fn main() {
     let app_m = App::new("KM site scrawler")
         .version(crate_version!())
         .author("brian")
@@ -30,5 +32,20 @@ fn main() {
     
         if let Some(depth) = app_m.value_of("depth") {
             println!("Scrawler depth: {depth}");
+
+            if let Some(home_url) = app_m.value_of("home_url"){
+                println!("Home Url: {home_url}");
+
+                match retrieve_urls(home_url).await{
+                    Err(why) => println!("Failed to retrieve urls: {why}"),
+                    Ok(urls) => {
+                            for url in &urls {
+                                println!("{url}");
+                            }     
+                       }
+                }
+
+            }
         }
 }
+
