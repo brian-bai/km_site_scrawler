@@ -28,7 +28,7 @@ async fn main() {
             Arg::new("dir")
             .short('d')
             .long("dir")
-            .default_value("~/Downloads")
+            .default_value(&shellexpand::tilde("~/Downloads").into_owned())
             .help("Target dir.") 
         )
         .arg(
@@ -39,6 +39,7 @@ async fn main() {
         )
         .get_matches();
 
+        //TODO: constrain file extension for download
         //TODO: how to make the target_dir available without unwrap and if let statment.
         let target_dir = app_m.value_of("dir").unwrap();
         //The shellexpand has already done by shell command.
