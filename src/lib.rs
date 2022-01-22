@@ -39,7 +39,7 @@ pub async fn retrieve_urls(home_url: &str) -> Result<HashSet<String>> {
     Ok(set)
 }
 
-pub fn compose_absolute_urls(home_url: &str, urls: HashSet<String>) -> HashSet<String> {
+pub fn compose_absolute_urls(home_url: &str, urls: Vec<String>) -> HashSet<String> {
 
     let base_url = match Url::parse(home_url) {
         Ok(url) => url,
@@ -68,7 +68,6 @@ pub fn compose_absolute_urls(home_url: &str, urls: HashSet<String>) -> HashSet<S
     set 
 }
 
-
 pub async fn download(absolute_url: &str, target_dir: &str) -> Result<()> {
     let response = reqwest::get(absolute_url).await?;
 
@@ -91,6 +90,13 @@ pub async fn download(absolute_url: &str, target_dir: &str) -> Result<()> {
     let mut content =  std::io::Cursor::new(response.bytes().await?);
     std::io::copy(&mut content, &mut dest)?;
     Ok(())
+}
+
+pub fn extract_extension(url: &str) -> Option<String> {
+    let re = regex::Regex::new(r"(?x)\w+\.(?P<ext>\w+)$").unwrap();
+    re.captures(url).and_then(|cap| {
+        cap.name("ext").map(|ext| String::from(ext.as_str()))
+    })
 }
 
 
